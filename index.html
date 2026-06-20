@@ -994,6 +994,26 @@ function renderCryptoFromWS(asset, price, change24h) {
     data = generateSimulatedCandles(price, 300);
   }
   loadAssetFromData(asset, data, price, change24h);
+  if (window.detailOpen && window.detailAssetId === asset.id) {
+    updateDetailLive(asset, price, change24h);
+  }
+}
+
+function updateDetailLive(asset, price, change24h) {
+  // Header
+  const pEl = document.getElementById('detail-price');
+  if (pEl) pEl.textContent = fmtPrice(price);
+  const chEl = document.getElementById('detail-change');
+  if (chEl && change24h != null && !isNaN(change24h)) {
+    chEl.textContent = (change24h >= 0 ? '+' : '') + Number(change24h).toFixed(2) + '%';
+    chEl.style.color = change24h >= 0 ? '#00d084' : '#ef4444';
+  }
+  // Throttled full redraw (chart + gauge + ranges). Ranges/klines are cached so cheap.
+  const now = Date.now();
+  if (!window.__detailLastDraw || now - window.__detailLastDraw > 1500) {
+    window.__detailLastDraw = now;
+    renderDetailChart(asset, currentDetailInterval);
+  }
 }
 
 let ws = null;
@@ -1271,6 +1291,8 @@ function closeDetail() {
   document.body.style.overflow = '';
   window.detailOpen = false;
   window.detailAssetId = null;
+  window.__detailLastDraw = null;
+  currentDetailInterval = '1h';
 }
 document.getElementById('detailClose').addEventListener('click', closeDetail);
 document.getElementById('detailBackdrop').addEventListener('click', closeDetail);
