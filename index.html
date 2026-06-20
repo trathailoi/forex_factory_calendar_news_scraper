@@ -534,6 +534,8 @@ function buildGrid() {
         <div class="meter"><div class="meter-track momentum"></div><div class="marker" id="mom-marker-${asset.id}" style="left:50%"></div></div>
         <div class="labels"><span class="m" style="color:#ef4444">OVERSOLD</span><span class="m">NEUTRAL</span><span class="m" style="color:#ef4444">OVERBOUGHT</span></div>
       </div>`;
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => openDetail(asset.id));
     grid.appendChild(card);
   });
 }
@@ -1084,6 +1086,46 @@ function openDetail(id) {
   document.body.style.overflow = 'hidden';
   window.detailOpen = true;
   window.detailAssetId = id;
+
+  const asset = ASSETS.find(a => a.id === id);
+  const state = assetState.get(id) || {};
+  const price = state.lastPrice;
+  const change = state.change24h;
+
+  // Header
+  document.getElementById('detail-symbol').textContent = asset ? asset.name : id;
+  document.getElementById('detail-price').textContent = (price != null) ? fmtPrice(price) : '—';
+  const chEl = document.getElementById('detail-change');
+  if (change != null && !isNaN(change)) {
+    chEl.textContent = (change >= 0 ? '+' : '') + Number(change).toFixed(2) + '%';
+    chEl.style.color = change >= 0 ? '#00d084' : '#ef4444';
+  } else {
+    chEl.textContent = '—';
+    chEl.style.color = '#94a3b8';
+  }
+
+  renderDetailLevels(id);
+  document.getElementById('detail-breakout').innerHTML = '<div class="sec-title" style="font-size:10px">BREAKOUT</div><div style="color:#64748b;margin-top:8px">Loading…</div>';
+  document.getElementById('detail-ranges').innerHTML = '<div class="sec-title" style="font-size:10px">RANGES</div><div style="color:#64748b;margin-top:8px">Loading…</div>';
+}
+function renderDetailLevels(id) {
+  const el = document.getElementById('detail-levels');
+  const state = assetState.get(id) || {};
+  const price = state.lastPrice, sup = state.support, res = state.resistance;
+  const d1 = state.d1Bias || '', h1 = state.h1Bias || '';
+  let bias = 'Neutral', biasColor = '#94a3b8';
+  if (d1.includes('bullish') && h1.includes('bullish')) { bias = 'Bullish'; biasColor = '#00d084'; }
+  else if (d1.includes('bearish') && h1.includes('bearish')) { bias = 'Bearish'; biasColor = '#ef4444'; }
+  const inside = (price != null && sup != null && res != null && price > sup && price < res);
+  const distRes = (price != null && res) ? Math.abs((price - res) / res * 100).toFixed(2) + '%' : '—';
+  const distSup = (price != null && sup) ? Math.abs((price - sup) / sup * 100).toFixed(2) + '%' : '—';
+  el.innerHTML = `
+    <div class="sec-title" style="font-size:10px;margin-bottom:8px">KEY LEVELS</div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">Resistance</span><span style="color:#ef4444;font-weight:700">${res != null ? fmtPrice(res) : '—'} <small style="color:#64748b">${distRes}</small></span></div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">Support</span><span style="color:#00d084;font-weight:700">${sup != null ? fmtPrice(sup) : '—'} <small style="color:#64748b">${distSup}</small></span></div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">Current</span><span style="color:#fff;font-weight:700">${price != null ? fmtPrice(price) : '—'} ${inside ? '<small style="color:#64748b">Inside range</small>' : ''}</span></div>
+    <div style="display:flex;justify-content:space-between;margin:8px 0 0"><span style="color:#94a3b8">Long-term bias</span><span style="color:${biasColor};font-weight:800">${bias}</span></div>
+  `;
 }
 function closeDetail() {
   const modal = document.getElementById('detailModal');
