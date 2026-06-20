@@ -116,8 +116,6 @@
   #detail-symbol { font-size: 22px; font-weight: 800; color: #fff; }
   .detail-price { font-size: 20px; font-weight: 800; color: #fff; }
   .detail-change { font-size: 13px; font-weight: 700; }
-  .detail-change.up { color: #00d084; }
-  .detail-change.down { color: #ef4444; }
   .detail-close { background: transparent; border: none; color: #94a3b8; font-size: 26px; cursor: pointer; line-height: 1; }
   .detail-body { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 10px; overflow: auto; min-height: 0; }
   .detail-chart-card { grid-column: 1 / -1; }
@@ -1259,11 +1257,10 @@ function openDetail(id) {
   }
 
   renderDetailLevels(id);
-  const asset2 = ASSETS.find(a => a.id === id);
-  if (asset2) {
-    currentDetailInterval = hasMultiTF(asset2) ? '1h' : '5m';
-    buildDetailTFs(asset2);
-    renderDetailChart(asset2, currentDetailInterval);
+  if (asset) {
+    currentDetailInterval = hasMultiTF(asset) ? '1h' : '5m';
+    buildDetailTFs(asset);
+    renderDetailChart(asset, currentDetailInterval);
   }
 }
 function renderDetailLevels(id) {
