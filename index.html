@@ -106,6 +106,28 @@
   .news-timer { font-size: 6px; color: #f59e0b; font-weight: 600; margin-top: 1px; }
   .news-legend { padding: 5px 6px; border-top: 1px solid #1e293b; font-size: 6px; color: #64748b; line-height: 1.4; flex-shrink: 0; }
   .news-legend strong { color: #94a3b8; display: block; margin-bottom: 2px; font-size: 7px; }
+
+  /* === DETAIL MODAL === */
+  .detail-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .detail-backdrop { position: absolute; inset: 0; background: rgba(3,7,18,0.78); backdrop-filter: blur(4px); }
+  .detail-panel { position: relative; width: 92vw; max-width: 1100px; height: 92vh; background: #0b1221; border: 1px solid #1e293b; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; padding: 14px; }
+  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .detail-title { display: flex; align-items: baseline; gap: 12px; }
+  #detail-symbol { font-size: 22px; font-weight: 800; color: #fff; }
+  .detail-price { font-size: 20px; font-weight: 800; color: #fff; }
+  .detail-change { font-size: 13px; font-weight: 700; }
+  .detail-change.up { color: #00d084; }
+  .detail-change.down { color: #ef4444; }
+  .detail-close { background: transparent; border: none; color: #94a3b8; font-size: 26px; cursor: pointer; line-height: 1; }
+  .detail-body { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 10px; overflow: auto; min-height: 0; }
+  .detail-chart-card { grid-column: 1 / -1; }
+  .detail-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 12px; color: #e5e7eb; min-height: 0; }
+  .detail-chart-svg { width: 100%; height: 260px; overflow: visible; }
+  .detail-tfs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .tf-tab { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: #1e293b; color: #cbd5e1; cursor: pointer; border: none; }
+  .tf-tab.active { background: #b8860b; color: #000; }
+  .tf-tab.disabled { opacity: 0.4; cursor: not-allowed; }
+  @media (max-width: 760px) { .detail-body { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -144,6 +166,30 @@
   </div>
 </div>
 
+<div id="detailModal" class="detail-modal" style="display:none">
+  <div class="detail-backdrop" id="detailBackdrop"></div>
+  <div class="detail-panel">
+    <div class="detail-header">
+      <div class="detail-title">
+        <span id="detail-symbol">—</span>
+        <span id="detail-price" class="detail-price">—</span>
+        <span id="detail-change" class="detail-change">—</span>
+      </div>
+      <button class="detail-close" id="detailClose">×</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-card detail-chart-card">
+        <div class="detail-tfs" id="detail-tfs"></div>
+        <svg class="detail-chart-svg" id="detail-chart" viewBox="0 0 800 300" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="detail-card" id="detail-levels">Key Levels</div>
+      <div class="detail-card" id="detail-breakout">Breakout</div>
+      <div class="detail-card" id="detail-ranges">Ranges</div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/detail_indicators.js"></script>
 <script>
 const CG_BASE = 'https://api.coingecko.com/api/v3';
 
@@ -1031,6 +1077,24 @@ async function refreshAll() {
   }
   updateTopBannerSummary();
 }
+
+function openDetail(id) {
+  const modal = document.getElementById('detailModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  window.detailOpen = true;
+  window.detailAssetId = id;
+}
+function closeDetail() {
+  const modal = document.getElementById('detailModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+  window.detailOpen = false;
+  window.detailAssetId = null;
+}
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('detailBackdrop').addEventListener('click', closeDetail);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && window.detailOpen) closeDetail(); });
 
 buildGrid();
 buildNews(true);
