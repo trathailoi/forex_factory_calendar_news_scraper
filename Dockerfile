@@ -17,7 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN chmod +x scripts/setup_env.sh docker/entrypoint.sh
+# Strip any CRLF (Windows Git checkout) so the shebang resolves to `bash`, not `bash\r`.
+RUN find scripts docker -name '*.sh' -exec sed -i 's/\r$//' {} + \
+ && chmod +x scripts/setup_env.sh docker/entrypoint.sh
 
 ENTRYPOINT ["./docker/entrypoint.sh"]
 CMD []
