@@ -1,0 +1,25 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Shell scripts + Docker entrypoints MUST be LF or containers break (exit 127).
+[*.sh]
+end_of_line = lf
+
+[{Dockerfile,*.Dockerfile,docker-compose*.yml,docker-compose*.yaml}]
+end_of_line = lf
+
+[*.{yml,yaml,json,toml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab

@@ -36,3 +36,21 @@ services:
       - ./news:/app/news
       - ./rules:/app/rules
       - ./state:/app/state
+
+  dashboard:
+    build:
+      context: .
+    image: forex-factory-toolkit
+    container_name: forex-factory-dashboard
+    restart: unless-stopped
+    user: "${DOCKER_UID:-1000}:${DOCKER_GID:-1000}"
+    environment:
+      FF_RUN_MODE: dashboard
+      DASHBOARD_HOST: 0.0.0.0
+    ports:
+      - "${DASHBOARD_PORT:-8000}:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./.env:/app/.env
+      - ./news:/app/news:ro

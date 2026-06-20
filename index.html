@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sigaotes KA-Ching</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #070b14; color: #e5e7eb; font-family: 'Inter', system-ui, sans-serif; overflow: hidden; height: 100vh; }
+  .app { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
+  .brand-bar { height: 28px; background: #0a0e1a; border-bottom: 1px solid #1e293b; display: flex; align-items: center; justify-content: flex-start; padding-left: 12px; gap: 5px; z-index: 100; flex-shrink: 0; }
+  .brand-text { font-family: 'Viner Hand ITC', 'Brush Script MT', cursive; font-size: 18px; color: #a0a0a0; letter-spacing: 1px; }
+  .brand-dot { color: #d4af37; font-size: 10px; }
+  .main-body { display: flex; flex: 1; overflow: hidden; min-width: 0; }
+  .left-area { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow: hidden; }
+  .top-banner { height: 26px; background: #1a1a1a; border: 1px solid #b8860b; border-radius: 6px; color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; z-index: 100; gap: 6px; white-space: nowrap; overflow: hidden; flex-shrink: 0; margin: 4px 4px 0 4px; animation: bannerPulse 2.5s ease-in-out infinite; }
+  @keyframes bannerPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(184,134,11,0); } 50% { box-shadow: 0 0 10px 3px rgba(184,134,11,0.22); } }
+  .top-banner span { animation: bannerTextPulse 1.2s ease-in-out infinite; }
+  @keyframes bannerTextPulse { 0%, 100% { opacity: 1; text-shadow: 0 0 0 rgba(212,175,55,0); } 50% { opacity: 0.7; text-shadow: 0 0 6px rgba(212,175,55,0.5); } }
+  .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 310px; gap: 5px; flex: 1; padding: 5px; overflow-y: auto; overflow-x: hidden; min-width: 0; scrollbar-width: none; -ms-overflow-style: none; }
+  .grid-container::-webkit-scrollbar { display: none; }
+
+  .asset-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 10px 10px; display: flex; flex-direction: column; position: relative; min-height: 0; min-width: 0; overflow: hidden; transition: border-color 0.5s, box-shadow 0.5s; }
+  .asset-card.card-blink-red { animation: blinkRed 2s ease-in-out infinite; }
+  @keyframes blinkRed { 0%, 100% { border-color: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.25); } 50% { border-color: #b91c1c; box-shadow: 0 0 10px rgba(239,68,68,0.5); } }
+  .asset-card.card-blink-blue { animation: blinkBlue 2s ease-in-out infinite; }
+  @keyframes blinkBlue { 0%, 100% { border-color: #3b82f6; box-shadow: 0 0 4px rgba(59,130,246,0.25); } 50% { border-color: #1d4ed8; box-shadow: 0 0 10px rgba(59,130,246,0.5); } }
+  .asset-card.card-blink-grey { animation: blinkGrey 2s ease-in-out infinite; }
+  @keyframes blinkGrey { 0%, 100% { border-color: #475569; box-shadow: 0 0 4px rgba(71,85,105,0.2); } 50% { border-color: #64748b; box-shadow: 0 0 10px rgba(71,85,105,0.4); } }
+  .asset-card.card-blink-yellow { animation: blinkYellow 2s ease-in-out infinite; }
+  @keyframes blinkYellow { 0%, 100% { border-color: #f59e0b; box-shadow: 0 0 4px rgba(245,158,11,0.25); } 50% { border-color: #b45309; box-shadow: 0 0 10px rgba(245,158,11,0.5); } }
+  .asset-card.flash-green { animation: cardFlashGreen 3s ease; }
+  @keyframes cardFlashGreen { 0%, 100% { box-shadow: inset 0 0 0 0 transparent; } 25%, 75% { box-shadow: inset 0 0 40px 2px rgba(0,208,132,0.15); } }
+  .asset-card.flash-red { animation: cardFlashRed 3s ease; }
+  @keyframes cardFlashRed { 0%, 100% { box-shadow: inset 0 0 0 0 transparent; } 25%, 75% { box-shadow: inset 0 0 40px 2px rgba(239,68,68,0.15); } }
+  .asset-card.flash-yellow { animation: cardFlashYellow 3s ease; }
+  @keyframes cardFlashYellow { 0%, 100% { box-shadow: inset 0 0 0 0 transparent; } 25%, 75% { box-shadow: inset 0 0 40px 2px rgba(245,158,11,0.15); } }
+
+  .breakout-badge { background: #f59e0b; color: #000; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; display: none; letter-spacing: 0.4px; white-space: nowrap; }
+  .breakout-badge.show { display: inline-flex; align-items: center; animation: badgePulse 2s infinite; }
+  .breakout-badge.bullish { background: #10b981; color: #000; }
+  .breakout-badge.bearish { background: #ef4444; color: #fff; }
+  @keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .sr-hit-badge { background: #10b981; color: #000; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 4px; display: none; letter-spacing: 0.4px; white-space: nowrap; }
+  .sr-hit-badge.resistance { background: #ef4444; color: #fff; }
+  .sr-hit-badge.show { display: inline-flex; align-items: center; animation: badgePulse 2s infinite; }
+  .sim-badge { background: #475569; color: #cbd5e1; font-size: 9px; font-weight: 800; padding: 3px 6px; border-radius: 4px; display: none; letter-spacing: 0.5px; white-space: nowrap; }
+  .sim-badge.show { display: inline-flex; align-items: center; }
+
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; height: 38px; flex-shrink: 0; margin-bottom: 2px; }
+  .symbol-name { font-size: 16px; font-weight: 800; color: #fff; letter-spacing: 0.3px; line-height: 1; }
+  .pill-wrap { flex: 1; display: flex; justify-content: center; padding-top: 2px; }
+  .price-wrap { text-align: right; }
+  .price { font-size: 16px; font-weight: 800; color: #fff; line-height: 1; }
+  .change { font-size: 10px; font-weight: 700; margin-top: 2px; }
+  .change.up { color: #00d084; }
+  .change.down { color: #ef4444; }
+
+  .chart-area { position: relative; width: 100%; height: 120px; margin-top: 2px; flex-shrink: 0; }
+  .chart-svg { width: 100%; height: 100%; overflow: visible; }
+
+  .sr-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 4px 0 6px; flex-shrink: 0; }
+  .sr-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #cbd5e1; font-weight: 600; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot.g { background: #00d084; }
+  .dot.r { background: #ef4444; }
+  .vdiv { width: 1px; height: 12px; background: #334155; }
+
+  .tfs { display: flex; gap: 10px; margin-bottom: 6px; flex-shrink: 0; }
+  .tf { flex: 1; }
+  .tf-label { font-size: 9px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .tf-label span { color: #94a3b8; font-weight: 600; margin-left: 4px; }
+  .tf-bar { height: 5px; width: 100%; display: flex; border-radius: 3px; overflow: hidden; background: #0f172a; }
+  .bar-r { background: #ef4444; height: 100%; transition: width 0.5s ease; }
+  .bar-g { background: #00d084; height: 100%; transition: width 0.5s ease; }
+
+  .section { margin-bottom: 5px; flex-shrink: 0; }
+  .sec-title { font-size: 7px; font-weight: 800; letter-spacing: 0.9px; color: #f1f5f9; text-transform: uppercase; margin-bottom: 4px; }
+  .meter { position: relative; height: 10px; }
+  .meter-track { width: 100%; height: 5px; border-radius: 3px; position: absolute; top: 2px; left: 0; }
+  .meter-track.trend { background: linear-gradient(to right, #dc2626 0%, #f97316 22%, #f59e0b 45%, #eab308 60%, #84cc16 78%, #00d084 100%); }
+  .meter-track.momentum { background: linear-gradient(to right, #dc2626 0% 10%, #ef4444 10% 13%, #00d084 13% 25%, #16a34a 25% 28%, #475569 28% 40%, #64748b 40% 60%, #475569 60% 72%, #16a34a 72% 75%, #00d084 75% 87%, #ef4444 87% 90%, #dc2626 90% 100%); }
+  .marker { position: absolute; top: 0; width: 2px; height: 10px; background: #fff; border-radius: 2px; box-shadow: 0 0 0 1px #1e293b; transform: translateX(-50%); transition: left 0.5s ease; }
+  .labels { display: flex; justify-content: space-between; margin-top: 2px; font-size: 6px; font-weight: 700; letter-spacing: 0.3px; }
+  .labels .weak { color: #ef4444; }
+  .labels .mod { color: #94a3b8; }
+  .labels .strong { color: #00d084; }
+  .labels .m { color: #94a3b8; }
+
+  .news-sidebar { width: 180px; background: #0b1221; border-left: 1px solid #1e293b; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+  .news-header { padding: 5px 7px; border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 4px; font-size: 8px; font-weight: 700; color: #f87171; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+  .news-dot { width: 5px; height: 5px; background: #ef4444; border-radius: 50%; animation: blink 2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .news-scroll { flex: 1; overflow: hidden; position: relative; }
+  .news-list { animation: scrollNews 50s linear infinite; }
+  @keyframes scrollNews { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+  .news-item { padding: 4px 6px; border-bottom: 1px solid #1e293b; display: flex; gap: 4px; align-items: flex-start; transition: background 0.3s; }
+  .news-item.flash-red { animation: newsFlashRed 1.5s ease infinite; }
+  @keyframes newsFlashRed { 0%, 100% { background: transparent; } 50% { background: rgba(239,68,68,0.2); } }
+  .news-folder { color: #ef4444; font-size: 9px; margin-top: 1px; flex-shrink: 0; }
+  .news-body { flex: 1; }
+  .news-title { font-size: 8px; font-weight: 600; color: #e2e8f0; line-height: 1.3; }
+  .news-meta { font-size: 6px; color: #64748b; margin-top: 1px; }
+  .news-impact { display: inline-block; background: #ef4444; color: #fff; font-size: 6px; font-weight: 700; padding: 0px 2px; border-radius: 1px; margin-right: 2px; }
+  .news-timer { font-size: 6px; color: #f59e0b; font-weight: 600; margin-top: 1px; }
+  .news-legend { padding: 5px 6px; border-top: 1px solid #1e293b; font-size: 6px; color: #64748b; line-height: 1.4; flex-shrink: 0; }
+  .news-legend strong { color: #94a3b8; display: block; margin-bottom: 2px; font-size: 7px; }
+
+  /* === DETAIL MODAL === */
+  .detail-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .detail-backdrop { position: absolute; inset: 0; background: rgba(3,7,18,0.78); backdrop-filter: blur(4px); }
+  .detail-panel { position: relative; width: 92vw; max-width: 1100px; height: 92vh; background: #0b1221; border: 1px solid #1e293b; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; padding: 14px; }
+  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .detail-title { display: flex; align-items: baseline; gap: 12px; }
+  #detail-symbol { font-size: 22px; font-weight: 800; color: #fff; }
+  .detail-price { font-size: 20px; font-weight: 800; color: #fff; }
+  .detail-change { font-size: 13px; font-weight: 700; }
+  .detail-close { background: transparent; border: none; color: #94a3b8; font-size: 26px; cursor: pointer; line-height: 1; }
+  .detail-body { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 10px; overflow: auto; min-height: 0; }
+  .detail-chart-card { grid-column: 1 / -1; }
+  .detail-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 12px; color: #e5e7eb; min-height: 0; }
+  .detail-chart-svg { width: 100%; height: 260px; overflow: visible; }
+  .detail-tfs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .tf-tab { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: #1e293b; color: #cbd5e1; cursor: pointer; border: none; }
+  .tf-tab.active { background: #b8860b; color: #000; }
+  .tf-tab.disabled { opacity: 0.4; cursor: not-allowed; }
+  @media (max-width: 760px) { .detail-body { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brand-bar">
+    <span class="brand-text">Sigaotes</span>
+    <span class="brand-text">KA</span>
+    <span class="brand-dot" style="color:#d4af37">~</span>
+    <span class="brand-text">Ching</span>
+  </div>
+  <div class="main-body">
+    <div class="left-area">
+      <div class="top-banner" id="topBanner">
+        <span>⚡</span>
+        <span id="bannerText">Loading market data...</span>
+      </div>
+      <div class="grid-container" id="gridContainer"></div>
+    </div>
+    <div class="news-sidebar">
+      <div class="news-header">
+        <div class="news-dot"></div>
+        <span>Red Folder</span>
+        <span style="margin-left:auto;color:#64748b" id="eventCount">0</span>
+      </div>
+      <div class="news-scroll">
+        <div class="news-list" id="newsList"></div>
+      </div>
+      <div class="news-legend">
+        <strong>Legend</strong>
+        Chart: 5-min price action<br>
+        Flash: S/R touch or ±3% breakout<br>
+        Bias: D1 + H1 alignment<br>
+        Data: Binance WS (crypto) · Twelve Data · CoinGecko · ForexFactory
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="detailModal" class="detail-modal" style="display:none">
+  <div class="detail-backdrop" id="detailBackdrop"></div>
+  <div class="detail-panel">
+    <div class="detail-header">
+      <div class="detail-title">
+        <span id="detail-symbol">—</span>
+        <span id="detail-price" class="detail-price">—</span>
+        <span id="detail-change" class="detail-change">—</span>
+      </div>
+      <button class="detail-close" id="detailClose">×</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-card detail-chart-card">
+        <div class="detail-tfs" id="detail-tfs"></div>
+        <svg class="detail-chart-svg" id="detail-chart" viewBox="0 0 800 300" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="detail-card" id="detail-levels">Key Levels</div>
+      <div class="detail-card" id="detail-breakout">Breakout</div>
+      <div class="detail-card" id="detail-ranges">Ranges</div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/detail_indicators.js"></script>
+<script>
+const CG_BASE = 'https://api.coingecko.com/api/v3';
+
+const ASSETS = [
+  // === FOREX & METALS (Top row) ===
+  { id:'xauusd', symbol:'XAUUSD', name:'XAUUSD', type:'commodity', basePrice:4300, cgId:'pax-gold' },
+  { id:'xagusd', symbol:'XAGUSD', name:'XAGUSD', type:'commodity', basePrice:70,   cgId:'kinesis-silver' },
+  { id:'eurusd', symbol:'EURUSD', name:'EURUSD', type:'forex',     basePrice:1.08, tdSymbol:'EUR/USD' },
+  
+  // === MAJOR CRYPTO (Largest to smallest market cap) ===
+  { id:'btc',  symbol:'BTCUSDT',  name:'BTC',  type:'crypto', basePrice:64200, cgId:'bitcoin' },
+  { id:'eth',  symbol:'ETHUSDT',  name:'ETH',  type:'crypto', basePrice:1660, cgId:'ethereum' },
+  { id:'bnb',  symbol:'BNBUSDT',  name:'BNB',  type:'crypto', basePrice:590, cgId:'binancecoin' },
+  { id:'sol',  symbol:'SOLUSDT',  name:'SOL',  type:'crypto', basePrice:67, cgId:'solana' },
+  { id:'xrp',  symbol:'XRPUSDT',  name:'XRP',  type:'crypto', basePrice:1.14, cgId:'ripple' },
+  { id:'doge', symbol:'DOGEUSDT', name:'DOGE', type:'crypto', basePrice:0.09, cgId:'dogecoin' },
+  { id:'ada',  symbol:'ADAUSDT',  name:'ADA',  type:'crypto', basePrice:0.17, cgId:'cardano' },
+  { id:'trx',  symbol:'TRXUSDT',  name:'TRX',  type:'crypto', basePrice:0.32, cgId:'tron' },
+  { id:'shib', symbol:'SHIBUSDT', name:'SHIB', type:'crypto', basePrice:0.000049, cgId:'shiba-inu' },
+  { id:'hbar', symbol:'HBARUSDT', name:'HBAR', type:'crypto', basePrice:0.08, cgId:'hedera-hashgraph' },
+  { id:'link', symbol:'LINKUSDT', name:'LINK', type:'crypto', basePrice:12, cgId:'chainlink' },
+  { id:'avax', symbol:'AVAXUSDT', name:'AVAX', type:'crypto', basePrice:22, cgId:'avalanche-2' },
+  { id:'sui',  symbol:'SUIUSDT',  name:'SUI',  type:'crypto', basePrice:0.80, cgId:'sui' },
+  { id:'pepe', symbol:'PEPEUSDT', name:'PEPE', type:'crypto', basePrice:0.0000027, cgId:'pepe' },
+  { id:'xlm',  symbol:'XLMUSDT',  name:'XLM',  type:'crypto', basePrice:0.18, cgId:'stellar' },
+  
+  // === SMALLER / MEME TOKENS ===
+  { id:'pi',   symbol:'PIUSDT',   name:'PI',   type:'crypto', basePrice:0.13, cgId:'pi-network', cmcId:'pi-network' },
+  { id:'gas',  symbol:'GASUSDT',  name:'GAS',  type:'crypto', basePrice:1.12, cgId:'gas', cmcId:'gas' },
+  { id:'wlfi', symbol:'WLFIUSDT', name:'WLFI', type:'crypto', basePrice:0.06, cgId:'world-liberty-financial', cmcId:'world-liberty-financial-wlfi' },
+  { id:'wfli', symbol:'WFLIUSDT', name:'WFLI', type:'crypto', basePrice:0.001, cmcId:'wfli' },
+  { id:'xpl',  symbol:'XPLUSDT',  name:'XPL',  type:'crypto', basePrice:0.09, cmcId:'xpl' },
+  { id:'xmoney',symbol:'XMONEYUSDT',name:'XMONEY',type:'crypto', basePrice:0.0001, cmcId:'xmoney' },
+  
+  // === COMMODITIES & INDICES ===
+  { id:'wti',    symbol:'CL',     name:'WTI',    type:'commodity', basePrice:72,   tdSymbol:'CL' },
+  { id:'spx',    symbol:'SPX',    name:'SPX',    type:'index',     basePrice:520,  tdSymbol:'SPX' },
+  { id:'nasdaq', symbol:'NDX',    name:'NASDAQ', type:'index',     basePrice:480,  tdSymbol:'NDX' },
+  
+  // === STOCKS ===
+  { id:'tsla',   symbol:'TSLA',   name:'TSLA',   type:'stock',     basePrice:180,  tdSymbol:'TSLA' },
+  { id:'nvda',   symbol:'NVDA',   name:'NVDA',   type:'stock',     basePrice:120,  tdSymbol:'NVDA' },
+  
+  // === EQUITY (fallback to simulation) ===
+  { id:'spacex', symbol:'SPCX',    name:'SPCX',   type:'equity',    basePrice:160 },
+];
+
+// Crypto symbols available on Binance spot (USDT pairs). Others fall back to CMC proxy.
+const BINANCE_PAIRS = new Set(['btc','eth','bnb','sol','xrp','doge','ada','trx','shib','hbar','link','avax','sui','pepe','xlm']);
+const WS_ASSETS = ASSETS.filter(a => BINANCE_PAIRS.has(a.id));
+const REST_ASSETS = ASSETS.filter(a => !BINANCE_PAIRS.has(a.id));
+function binanceSymbol(asset) { return asset.symbol.toLowerCase(); } // e.g. 'btcusdt'
+
+const EVENT_DURATION_MS = 1 * 60 * 1000;
+const FLASH_BEFORE_MS = 5 * 60 * 1000;
+const MOMENTUM_OVERSOLD = 10;
+const MOMENTUM_OVERBOUGHT = 90;
+
+const assetState = new Map();
+let bannerQueue = [];
+let isBannerFlashing = false;
+let lastNewsBuild = 0;
+
+function fmtPrice(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  if (abs >= 10000) return n.toLocaleString('en-US', {maximumFractionDigits:2});
+  if (abs >= 1000) return n.toLocaleString('en-US', {maximumFractionDigits:2});
+  if (abs >= 1) return n.toFixed(2);
+  if (abs >= 0.01) return n.toFixed(4);
+  if (abs >= 0.0001) return n.toFixed(6);
+  return n.toFixed(7);
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+let cachedNews = [];
+
+async function buildNews(force) {
+  const now = Date.now();
+  if (!force && now - lastNewsBuild < 30000) return;
+  lastNewsBuild = now;
+
+  try {
+    const r = await fetch('/api/news');
+    cachedNews = r.ok ? await r.json() : [];
+  } catch (e) {
+    cachedNews = [];
+  }
+
+  const list = document.getElementById('newsList');
+  list.innerHTML = '';
+  const active = cachedNews
+    .map(n => ({ ...n, endTime: n.scheduledTime + EVENT_DURATION_MS }))
+    .filter(e => now < e.endTime)
+    .sort((a, b) => a.scheduledTime - b.scheduledTime);
+  document.getElementById('eventCount').textContent = active.length;
+
+  if (active.length === 0) {
+    list.innerHTML = `<div class="news-item" style="justify-content:center;opacity:0.5"><div class="news-body"><div class="news-title" style="color:#64748b">No events scheduled</div><div class="news-meta">High-impact events appear here</div></div></div>`;
+    return;
+  }
+
+  const display = [...active, ...active];
+  display.forEach((n, idx) => {
+    const item = document.createElement('div');
+    item.className = 'news-item';
+    item.id = `news-${idx}`;
+    item.dataset.scheduled = n.scheduledTime;
+    item.dataset.end = n.endTime;
+    const t = new Date(n.scheduledTime);
+    const timeStr = t.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}) + ' ' + t.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:false});
+    const impactLabel = n.impact === 'red' ? 'High' : 'Med';
+    item.innerHTML = `<div class="news-folder">▶</div><div class="news-body"><div class="news-title"><span class="news-impact">${impactLabel}</span>${esc(n.title)} (${esc(n.currency)})</div><div class="news-meta">${esc(n.source)} · ${esc(n.cat)} · ${timeStr}</div><div class="news-timer" id="timer-${idx}"></div></div>`;
+    list.appendChild(item);
+  });
+  list.style.animation = 'none';
+  void list.offsetHeight;
+  list.style.animation = 'scrollNews 50s linear infinite';
+}
+
+function updateNewsTimers() {
+  const now = Date.now();
+  let hasExpired = false;
+  document.querySelectorAll('.news-item').forEach(item => {
+    const scheduled = parseInt(item.dataset.scheduled);
+    const end = parseInt(item.dataset.end);
+    const timerEl = item.querySelector('.news-timer');
+    if (!scheduled || !timerEl) return;
+    if (now >= end) {
+      item.style.display = 'none';
+      item.classList.remove('flash-red');
+      hasExpired = true;
+      return;
+    }
+    const untilStart = scheduled - now;
+    const minUntil = Math.ceil(untilStart / 60000);
+    if (now >= scheduled) {
+      timerEl.textContent = 'LIVE NOW';
+      timerEl.style.color = '#ef4444';
+      item.classList.add('flash-red');
+    } else if (untilStart <= FLASH_BEFORE_MS) {
+      timerEl.textContent = `IN ${Math.max(0, minUntil)} MIN`;
+      timerEl.style.color = '#f59e0b';
+      item.classList.add('flash-red');
+    } else {
+      timerEl.textContent = `${minUntil}m`;
+      timerEl.style.color = '#64748b';
+      item.classList.remove('flash-red');
+    }
+  });
+  if (hasExpired) {
+    const visible = document.querySelectorAll('.news-item:not([style*="display: none"])');
+    if (visible.length === 0) buildNews(true);
+  }
+}
+
+function calculateEMA(data, period) {
+  const k = 2 / (period + 1);
+  const out = [];
+  let ema = data[0].value;
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) ema = data[i].value;
+    else ema = data[i].value * k + ema * (1 - k);
+    out.push({ time: data[i].time, value: ema });
+  }
+  return out;
+}
+
+function getBias(price, ema, data, timeframe) {
+  const candles = timeframe === 'D1' ? Math.min(288, data.length) : 12;
+  const slice = data.slice(-candles);
+  if (slice.length < 2) return 'neutral';
+  const first = slice[0].value;
+  const last = slice[slice.length - 1].value;
+  const above = price > ema;
+  const rising = last > first;
+  const falling = last < first;
+  if (above && rising) return 'bullish';
+  if (!above && falling) return 'bearish';
+  if (above && !rising) return 'bullish_momentum';
+  if (!above && !falling) return 'bearish_momentum';
+  return 'neutral';
+}
+
+function getTrendStrength(data, price, ema200) {
+  if (!data || data.length < 20) return 50;
+  const slice = data.slice(-288);
+  const first = slice[0].value;
+  const last = slice[slice.length - 1].value;
+  const trend = Math.abs((last - first) / first * 100);
+  const aboveEma = price > ema200 ? 1 : -1;
+  const score = Math.min(100, Math.max(0, 50 + (trend * 5 * aboveEma)));
+  return Math.round(score);
+}
+
+function getMomentum(data) {
+  if (!data || data.length < 14) return 50;
+  const slice = data.slice(-288);
+  const gains = [], losses = [];
+  for (let i = 1; i < slice.length; i++) {
+    const diff = slice[i].value - slice[i-1].value;
+    if (diff > 0) gains.push(diff);
+    else losses.push(Math.abs(diff));
+  }
+  const avgGain = gains.length ? gains.reduce((a,b)=>a+b,0)/gains.length : 0;
+  const avgLoss = losses.length ? losses.reduce((a,b)=>a+b,0)/losses.length : 0.001;
+  const rs = avgGain / avgLoss;
+  const rsi = 100 - (100 / (1 + rs));
+  return Math.round(rsi);
+}
+
+// Build dynamic price line path - last point is always at exact current price Y, no gap
+function buildDynamicPricePath(data, width, height, padding, currentPrice) {
+  if (!data || data.length < 2) return '';
+  
+  // Validate data - filter out null/NaN values
+  const validData = data.filter(d => d.value !== null && d.value !== undefined && !isNaN(d.value));
+  if (validData.length < 2) return '';
+  
+  const chartData = validData.map(d => ({ time: d.time, value: d.value }));
+  // Override last point to current price
+  chartData[chartData.length - 1].value = currentPrice;
+  
+  const values = chartData.map(d => d.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const usableHeight = height - padding * 2;
+  const stepX = width / (chartData.length - 1);
+  
+  const points = values.map((v, i) => ({
+    x: i * stepX,
+    y: height - padding - ((v - min) / range) * usableHeight
+  }));
+  
+  if (points.length < 2) return '';
+  
+  // Build path - always start from first point, no clipping
+  let d = `M${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i-1];
+    const curr = points[i];
+    const cp1x = prev.x + (curr.x - prev.x) * 0.3;
+    const cp1y = prev.y;
+    const cp2x = curr.x - (curr.x - prev.x) * 0.3;
+    const cp2y = curr.y;
+    d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+  }
+  
+  return d;
+}
+
+function buildSmoothSVGPath(data, width, height, padding) {
+  if (!data || data.length < 2) return '';
+  
+  // Validate data
+  const validData = data.filter(d => d.value !== null && d.value !== undefined && !isNaN(d.value));
+  if (validData.length < 2) return '';
+  
+  const values = validData.map(d => d.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const usableHeight = height - padding * 2;
+  const stepX = width / (validData.length - 1);
+  
+  const points = values.map((v, i) => ({
+    x: i * stepX,
+    y: height - padding - ((v - min) / range) * usableHeight
+  }));
+  
+  if (points.length < 2) return '';
+  
+  let d = `M${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i-1];
+    const curr = points[i];
+    const cp1x = prev.x + (curr.x - prev.x) * 0.3;
+    const cp1y = prev.y;
+    const cp2x = curr.x - (curr.x - prev.x) * 0.3;
+    const cp2y = curr.y;
+    d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+  }
+  return d;
+}
+function buildGrid() {
+  const grid = document.getElementById('gridContainer');
+  ASSETS.forEach(asset => {
+    const card = document.createElement('div');
+    card.className = 'asset-card';
+    card.id = `card-${asset.id}`;
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="symbol-name">${asset.name}</div>
+        <div class="pill-wrap">
+          <div class="breakout-badge" id="badge-${asset.id}">BREAKOUT</div>
+          <div class="sr-hit-badge" id="sr-badge-${asset.id}">S/R HIT</div>
+          <div class="sim-badge" id="sim-badge-${asset.id}">SIM</div>
+        </div>
+        <div class="price-wrap">
+          <div class="price" id="price-${asset.id}">—</div>
+          <div class="change" id="change-${asset.id}">—</div>
+        </div>
+      </div>
+      <div class="chart-area" id="chart-${asset.id}">
+        <svg class="chart-svg" id="svg-${asset.id}" viewBox="0 0 372 120" preserveAspectRatio="none">
+          <line id="res-line-${asset.id}" x1="0" y1="15" x2="300" y2="15" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4" opacity="0.7"/>
+          <line id="sup-line-${asset.id}" x1="0" y1="105" x2="300" y2="105" stroke="#00d084" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4" opacity="0.7"/>
+          <path id="ema200-${asset.id}" d="" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5 5" stroke-linecap="round" opacity="0.85"/>
+          <path id="price-line-${asset.id}" d="" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+          <g id="price-tag-group-${asset.id}" style="display:none">
+            <rect id="price-tag-rect-${asset.id}" x="300" y="0" width="72" height="22" rx="5" fill="none" stroke-width="2" opacity="1"/>
+            <text id="price-tag-text-${asset.id}" x="336" y="15" fill="#fff" font-size="10" font-weight="800" text-anchor="middle" font-family="Inter,system-ui,sans-serif">—</text>
+          </g>
+        </svg>
+      </div>
+      <div class="sr-row">
+        <div class="sr-item"><span class="dot g"></span><span id="sup-${asset.id}">S:—</span></div>
+        <div class="vdiv"></div>
+        <div class="sr-item"><span class="dot r"></span><span id="res-${asset.id}">R:—</span></div>
+      </div>
+      <div class="tfs">
+        <div class="tf">
+          <div class="tf-label">D1 <span id="d1-ratio-${asset.id}">50/50</span></div>
+          <div class="tf-bar" id="d1-bar-${asset.id}"><div class="bar-r" style="width:50%"></div><div class="bar-g" style="width:50%"></div></div>
+        </div>
+        <div class="tf">
+          <div class="tf-label">H1 <span id="h1-ratio-${asset.id}">50/50</span></div>
+          <div class="tf-bar" id="h1-bar-${asset.id}"><div class="bar-r" style="width:50%"></div><div class="bar-g" style="width:50%"></div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-title">TREND STRENGTH</div>
+        <div class="meter"><div class="meter-track trend"></div><div class="marker" id="trend-marker-${asset.id}" style="left:50%"></div></div>
+        <div class="labels"><span class="weak">WEAK</span><span class="mod">MODERATE</span><span class="strong">STRONG</span></div>
+      </div>
+      <div class="section" style="margin-bottom:6px">
+        <div class="sec-title">MOMENTUM</div>
+        <div class="meter"><div class="meter-track momentum"></div><div class="marker" id="mom-marker-${asset.id}" style="left:50%"></div></div>
+        <div class="labels"><span class="m" style="color:#ef4444">OVERSOLD</span><span class="m">NEUTRAL</span><span class="m" style="color:#ef4444">OVERBOUGHT</span></div>
+      </div>`;
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => openDetail(asset.id));
+    grid.appendChild(card);
+  });
+}
+
+// === STABLE API FETCH FUNCTIONS ===
+// Primary: CoinGecko (keyless, 100 calls/min, 10K/month, most reliable in 2026)
+// Fallback: Simulated data for assets not on CoinGecko
+
+// Cache to avoid redundant calls
+const cgCache = new Map();
+const CG_CACHE_TTL = 30000; // 30 seconds
+
+async function cgFetch(endpoint) {
+  const cacheKey = endpoint;
+  const cached = cgCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < CG_CACHE_TTL) return cached.data;
+  try {
+    const r = await fetch(`${CG_BASE}${endpoint}`);
+    if (!r.ok) return null;
+    const data = await r.json();
+    cgCache.set(cacheKey, { data, ts: Date.now() });
+    return data;
+  } catch(e) { return null; }
+}
+
+// Fetch current prices for multiple coins in ONE call (efficient)
+async function fetchCGPrices(ids) {
+  if (!ids || ids.length === 0) return null;
+  const idStr = ids.join(',');
+  return await cgFetch(`/simple/price?ids=${idStr}&vs_currencies=usd&include_24hr_change=true`);
+}
+
+// Fetch market data (price, change, market cap, volume) for top coins
+async function fetchCGMarkets(perPage=250, page=1) {
+  return await cgFetch(`/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false&price_change_percentage=24h`);
+}
+
+// Fetch OHLCV history for chart data (daily only on free tier, but we can use it)
+async function fetchCGHistory(cgId, days=1) {
+  return await cgFetch(`/coins/${cgId}/market_chart?vs_currency=usd&days=${days}`);
+}
+
+// Fetch single coin data with 24h change
+async function fetchCGCoin(cgId) {
+  return await cgFetch(`/coins/${cgId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
+}
+
+// === TWELVE DATA API FUNCTIONS ===
+// Free tier: 800 requests/day, 8/min. Covers stocks, forex, crypto, indices, commodities.
+// Sign up at twelvedata.com for a real key (no credit card). Demo key works for limited testing.
+
+async function tdFetch(endpoint) {
+  try {
+    const r = await fetch(`/api/td${endpoint}`);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+async function fetchTDQuote(symbol) {
+  return await tdFetch(`/quote?symbol=${encodeURIComponent(symbol)}`);
+}
+async function fetchTDPrice(symbol) {
+  return await tdFetch(`/quote?symbol=${encodeURIComponent(symbol)}`);
+}
+async function fetchTDTimeSeries(symbol, interval='5min', outputsize=200) {
+  return await tdFetch(`/time_series?symbol=${encodeURIComponent(symbol)}&interval=${interval}&outputsize=${outputsize}`);
+}
+async function fetchTDBatchQuote(symbols) {
+  const symStr = Array.isArray(symbols) ? symbols.join(',') : symbols;
+  return await tdFetch(`/quote?symbol=${encodeURIComponent(symStr)}`);
+}
+
+// Convert Twelve Data time series to our internal candle format
+function tdToCandles(tdData) {
+  if (!tdData || !tdData.values || tdData.values.length === 0) return null;
+  // TD returns newest first, we need oldest first
+  const values = [...tdData.values].reverse();
+  return values.map(v => {
+    const t = Math.floor(new Date(v.datetime).getTime() / 1000);
+    return {
+      time: isNaN(t) ? Math.floor(Date.now()/1000) : t,
+      value: parseFloat(v.close) || 0,
+      high: parseFloat(v.high) || parseFloat(v.close) || 0,
+      low: parseFloat(v.low) || parseFloat(v.close) || 0
+    };
+  }).filter(d => !isNaN(d.value) && d.value > 0);
+}
+
+// === CMC API (for tokens not on CoinGecko) ===
+async function fetchCMCQuotes() {
+  try {
+    const symbols = ASSETS.filter(a => a.cmcId && !a.cgId).map(a => a.symbol.replace('USDT','')).join(',');
+    if (!symbols) return null;
+    const r = await fetch(`/api/cmc/quotes?symbol=${encodeURIComponent(symbols)}`);
+    if (!r.ok) return null;
+    const j = await r.json();
+    const map = {};
+    if (j.data) {
+      Object.keys(j.data).forEach(sym => {
+        const entries = j.data[sym];
+        if (entries && entries.length > 0) {
+          const d = entries[0];
+          map[sym.toLowerCase()] = { price: d.quote.USD.price, change24h: d.quote.USD.percent_change_24h || 0 };
+        }
+      });
+    }
+    return map;
+  } catch(e) { return null; }
+}
+async function loadAsset(asset, cgPrices, cgMarkets, cmcMap, cmcQuotes) {
+  const state = assetState.get(asset.id) || {};
+  let data = null, price = null, change24h = 0;
+
+  // === UNIFIED MARKET ENDPOINT: Stocks, Forex, Indices, Commodities (TD + fallbacks) ===
+  if (asset.tdSymbol) {
+    const assetClass = asset.type; // forex|stock|index|commodity
+    let md = null;
+    try {
+      const r = await fetch(`/api/market/${asset.id}?td_symbol=${encodeURIComponent(asset.tdSymbol)}&asset_class=${encodeURIComponent(assetClass)}`);
+      if (r.ok) md = await r.json();
+    } catch (e) { md = null; }
+
+    if (md && md.source) {
+      price = md.price;
+      change24h = md.change24h || 0;
+      if (md.candles && md.candles.length >= 2) {
+        // Real intraday history (TwelveData).
+        data = md.candles;
+        tdBuffers.set(asset.id, md.candles);
+      } else {
+        // Source gave price only (frankfurter/finnhub). Accumulate a rolling buffer
+        // so the chart builds real shape over time instead of faking 300 candles.
+        data = pushTdTick(asset, price);
+      }
+      assetState.set(asset.id, { ...(assetState.get(asset.id) || {}), simulated: false });
+    }
+    // md.source === null falls through to the simulation block below (with SIM tag).
+  }
+
+  // === COINGECKO: Major Crypto ===
+  if (!price && (asset.type === 'crypto' || asset.type === 'commodity')) {
+    if (cgPrices && asset.cgId) {
+      const cg = cgPrices[asset.cgId];
+      if (cg) {
+        price = cg.usd;
+        change24h = cg.usd_24h_change || 0;
+      }
+    }
+    if (!price && cgMarkets) {
+      const match = cgMarkets.find(m => 
+        m.id === asset.cgId || 
+        m.symbol.toLowerCase() === asset.name.toLowerCase()
+      );
+      if (match) {
+        price = match.current_price;
+        change24h = match.price_change_percentage_24h || 0;
+      }
+    }
+  }
+
+  // === CMC: Small tokens not on CoinGecko ===
+  if (!price && asset.cmcId) {
+    if (cmcQuotes) {
+      const cmcSym = asset.symbol.replace('USDT','').toLowerCase();
+      const cmcData = cmcQuotes[cmcSym];
+      if (cmcData) { price = cmcData.price; change24h = cmcData.change24h; }
+    }
+    if (!price && cmcMap) {
+      const cmcSym = asset.symbol.replace('USDT','').toLowerCase();
+      const cmcData = cmcMap[cmcSym];
+      if (cmcData) { price = cmcData.price; change24h = cmcData.change24h; }
+    }
+  }
+
+  // === FALLBACK: Simulation ===
+  if (!price) {
+    console.warn(`[${asset.id}] No real data available, using simulation`);
+    data = generateSimulatedCandles(state.lastPrice || asset.basePrice, 300);
+    price = data[data.length-1].value;
+    change24h = ((Math.random()-0.5)*2);
+    assetState.set(asset.id, { ...(assetState.get(asset.id) || {}), simulated: true });
+  }
+  if (!data) {
+    data = generateSimulatedCandles(price || asset.basePrice, 300);
+  }
+
+  return loadAssetFromData(asset, data, price, change24h);
+}
+
+function loadAssetFromData(asset, data, price, change24h) {
+  const state = assetState.get(asset.id) || {};
+  const ema200Data = calculateEMA(data, 200);
+  const lastEma200 = ema200Data[ema200Data.length-1].value;
+  const support = Math.min(...data.slice(-288).map(d => d.low));
+  const resistance = Math.max(...data.slice(-288).map(d => d.high));
+
+  const dayAgo = Date.now()/1000 - 86400;
+  const prevDayCandles = data.filter(d => d.time < dayAgo);
+  const prevDayHigh = prevDayCandles.length ? Math.max(...prevDayCandles.map(d=>d.high)) : resistance;
+  const prevDayLow  = prevDayCandles.length ? Math.min(...prevDayCandles.map(d=>d.low)) : support;
+
+  const d1Bias = getBias(price, lastEma200, data, 'D1');
+  const h1Bias = getBias(price, lastEma200, data, 'H1');
+  const trendStrength = getTrendStrength(data, price, lastEma200);
+  const momentum = getMomentum(data);
+
+  const prevD1 = state.d1Bias || '';
+  const prevH1 = state.h1Bias || '';
+  const prevPrice = state.lastPrice || 0;
+  const prevEma200 = state.lastEma200 || 0;
+  
+  const biasChanged = (prevD1 && prevD1 !== d1Bias) || (prevH1 && prevH1 !== h1Bias);
+  const emaCross = prevPrice && prevEma200 && ((prevPrice > prevEma200 && price <= lastEma200) || (prevPrice < prevEma200 && price >= lastEma200));
+
+  // Update DOM
+  const priceEl = document.getElementById(`price-${asset.id}`);
+  const chEl = document.getElementById(`change-${asset.id}`);
+  if (priceEl) priceEl.textContent = fmtPrice(price);
+  if (chEl) {
+    chEl.textContent = (change24h>=0?'+':'') + change24h.toFixed(2) + '%';
+    chEl.className = 'change ' + (change24h>=0?'up':'down');
+  }
+  const simBadge = document.getElementById(`sim-badge-${asset.id}`);
+  if (simBadge) {
+    const isSim = (assetState.get(asset.id) || {}).simulated;
+    simBadge.classList.toggle('show', !!isSim);
+  }
+
+  const supEl = document.getElementById(`sup-${asset.id}`);
+  const resEl = document.getElementById(`res-${asset.id}`);
+  if (supEl) supEl.textContent = 'S:' + fmtPrice(support);
+  if (resEl) resEl.textContent = 'R:' + fmtPrice(resistance);
+
+  const d1Bar = document.getElementById(`d1-bar-${asset.id}`);
+  const h1Bar = document.getElementById(`h1-bar-${asset.id}`);
+  const d1Ratio = document.getElementById(`d1-ratio-${asset.id}`);
+  const h1Ratio = document.getElementById(`h1-ratio-${asset.id}`);
+  
+  const d1Bear = d1Bias.includes('bearish') ? 65 : d1Bias.includes('bullish') ? 35 : 50;
+  const d1Bull = 100 - d1Bear;
+  const h1Bear = h1Bias.includes('bearish') ? 65 : h1Bias.includes('bullish') ? 35 : 50;
+  const h1Bull = 100 - h1Bear;
+  
+  if (d1Bar) d1Bar.innerHTML = `<div class="bar-r" style="width:${d1Bear}%"></div><div class="bar-g" style="width:${d1Bull}%"></div>`;
+  if (h1Bar) h1Bar.innerHTML = `<div class="bar-r" style="width:${h1Bear}%"></div><div class="bar-g" style="width:${h1Bull}%"></div>`;
+  if (d1Ratio) d1Ratio.textContent = `${d1Bear}/${d1Bull}`;
+  if (h1Ratio) h1Ratio.textContent = `${h1Bear}/${h1Bull}`;
+
+  const trendMarker = document.getElementById(`trend-marker-${asset.id}`);
+  const momMarker = document.getElementById(`mom-marker-${asset.id}`);
+  if (trendMarker) trendMarker.style.left = trendStrength + '%';
+  if (momMarker) momMarker.style.left = momentum + '%';
+
+  // Update SVG Chart
+  const priceLine = document.getElementById(`price-line-${asset.id}`);
+  const ema200Line = document.getElementById(`ema200-${asset.id}`);
+  const resLine = document.getElementById(`res-line-${asset.id}`);
+  const supLine = document.getElementById(`sup-line-${asset.id}`);
+  
+  if (ema200Line) {
+    const emaPath = buildSmoothSVGPath(ema200Data, 300, 120, 8);
+    ema200Line.setAttribute('d', emaPath);
+  }
+
+  // DYNAMIC PRICE LINE: build path where last point = current price, no gap
+  if (priceLine) {
+    const pricePath = buildDynamicPricePath(data, 300, 120, 8, price);
+    priceLine.setAttribute('d', pricePath);
+  }
+  
+  // Chart scaling from DATA ONLY (not S/R) so S/R lines appear at meaningful positions
+  const allValues = data.map(d => d.value);
+  const chartMin = Math.min(...allValues);
+  const chartMax = Math.max(...allValues);
+  const chartRange = chartMax - chartMin || 1;
+  const usableH = 120 - 16;
+  
+  const resY = 8 + usableH - ((resistance - chartMin) / chartRange) * usableH;
+  const supY = 8 + usableH - ((support - chartMin) / chartRange) * usableH;
+  const priceY = 8 + usableH - ((price - chartMin) / chartRange) * usableH;
+  
+  // S/R lines share the same left-aligned domain as the price/EMA lines (ends where the price tag begins)
+  const lineStart = 0;
+  const lineEnd = 300;
+  
+  if (resLine) { 
+    resLine.setAttribute('y1', resY); 
+    resLine.setAttribute('y2', resY);
+    resLine.setAttribute('x1', lineStart);
+    resLine.setAttribute('x2', lineEnd);
+  }
+  if (supLine) { 
+    supLine.setAttribute('y1', supY); 
+    supLine.setAttribute('y2', supY);
+    supLine.setAttribute('x1', lineStart);
+    supLine.setAttribute('x2', lineEnd);
+  }
+  
+  // Update SVG price tag - sits flush at end of price line (x=300), no gap
+  const priceTagGroup = document.getElementById(`price-tag-group-${asset.id}`);
+  const priceTagRect = document.getElementById(`price-tag-rect-${asset.id}`);
+  const priceTagText = document.getElementById(`price-tag-text-${asset.id}`);
+  if (priceTagGroup && priceTagRect && priceTagText) {
+    const tagHeight = 22;
+    const tagY = priceY - tagHeight / 2;
+    const tagColor = price > lastEma200 ? '#00d084' : price < lastEma200 ? '#ef4444' : '#64748b';
+    
+    priceTagRect.setAttribute('y', tagY);
+    priceTagRect.setAttribute('stroke', tagColor);
+    priceTagText.setAttribute('y', tagY + 16);
+    priceTagText.textContent = fmtPrice(price);
+    priceTagGroup.style.display = 'block';
+  }
+
+  // Alert logic
+  const card = document.getElementById(`card-${asset.id}`);
+  const distSup = Math.abs((price - support) / support * 100);
+  const distRes = Math.abs((price - resistance) / resistance * 100);
+  const badge = document.getElementById(`badge-${asset.id}`);
+  const srBadge = document.getElementById(`sr-badge-${asset.id}`);
+
+  let borderState = 'grey';
+  let alertText = '';
+  let alertColor = '';
+  let flashed = false;
+
+  const d1b = d1Bias.includes('bullish');
+  const d1e = d1Bias.includes('bearish');
+  const h1b = h1Bias.includes('bullish');
+  const h1e = h1Bias.includes('bearish');
+
+  if (Math.abs(change24h) >= 3) {
+    borderState = 'yellow';
+    alertText = `${asset.name} BREAKOUT ${change24h>0?'+':''}${change24h.toFixed(2)}%`;
+    alertColor = change24h > 0 ? 'green' : 'red';
+    if (badge) { badge.classList.remove('bullish','bearish'); badge.classList.add('show', change24h > 0 ? 'bullish' : 'bearish'); }
+    card.classList.add(change24h>0?'flash-green':'flash-red');
+    flashed = true;
+    setTimeout(()=>{ card.classList.remove('flash-green','flash-red'); if (badge) badge.classList.remove('show'); }, 7000);
+  }
+  else if (distSup < 0.5 || distRes < 0.5) {
+    borderState = 'yellow';
+    if (distSup < 0.5) {
+      alertText = `${asset.name} hit SUPPORT`;
+      alertColor = 'green';
+      if (srBadge) { srBadge.textContent = 'SUPPORT HIT'; srBadge.className = 'sr-hit-badge show'; }
+    } else {
+      alertText = `${asset.name} hit RESISTANCE`;
+      alertColor = 'red';
+      if (srBadge) { srBadge.textContent = 'RESISTANCE HIT'; srBadge.className = 'sr-hit-badge resistance show'; }
+    }
+    card.classList.add('flash-yellow');
+    flashed = true;
+    setTimeout(()=>{ card.classList.remove('flash-yellow'); if (srBadge) srBadge.classList.remove('show'); }, 7000);
+  }
+  else if (momentum <= MOMENTUM_OVERSOLD || momentum >= MOMENTUM_OVERBOUGHT) {
+    borderState = 'red';
+    alertText = momentum <= MOMENTUM_OVERSOLD ? `${asset.name} EXTREME OVERSOLD` : `${asset.name} EXTREME OVERBOUGHT`;
+    alertColor = 'red';
+    card.classList.add('flash-red');
+    flashed = true;
+    setTimeout(()=>card.classList.remove('flash-red'), 7000);
+  }
+  else if (biasChanged) {
+    if (d1b && h1b) { borderState = 'blue'; alertText = `${asset.name} BULLISH`; alertColor = 'green'; }
+    else if (d1e && h1e) { borderState = 'red'; alertText = `${asset.name} BEARISH`; alertColor = 'red'; }
+    else { borderState = 'grey'; alertText = `${asset.name} NEUTRAL`; alertColor = 'grey'; }
+  }
+  else if (emaCross) {
+    borderState = 'yellow';
+    alertText = price > lastEma200 ? `${asset.name} crossed ABOVE 200 EMA` : `${asset.name} crossed BELOW 200 EMA`;
+    alertColor = price > lastEma200 ? 'green' : 'red';
+    card.classList.add('flash-yellow');
+    flashed = true;
+    setTimeout(()=>card.classList.remove('flash-yellow'), 7000);
+  }
+  else {
+    if (d1b && h1b) borderState = 'blue';
+    else if (d1e && h1e) borderState = 'red';
+    else borderState = 'grey';
+  }
+
+  card.classList.remove('card-blink-red','card-blink-blue','card-blink-grey','card-blink-yellow');
+  card.classList.add(`card-blink-${borderState}`);
+
+  if (alertText) {
+    queueBanner(alertText, alertColor);
+  }
+
+  assetState.set(asset.id, { ...(assetState.get(asset.id) || state), lastPrice: price, lastEma200, support, resistance, d1Bias, h1Bias, change24h });
+}
+function generateSimulatedCandles(basePrice, count = 200) {
+  const data = [];
+  let price = basePrice;
+  const now = Math.floor(Date.now() / 1000);
+  const step = 300;
+  for (let i = count; i > 0; i--) {
+    const t = now - i * step;
+    const vol = basePrice * 0.008;
+    const change = (Math.random() - 0.48) * vol;
+    price = Math.max(price * 0.5, price + change);
+    const high = price * (1 + Math.random() * 0.004);
+    const low  = price * (1 - Math.random() * 0.004);
+    data.push({ time: t, value: price, high, low });
+  }
+  return data;
+}
+
+// Rolling buffer for TD assets whose fallback source gives price-only (no candles).
+const tdBuffers = new Map();
+
+function pushTdTick(asset, price) {
+  const now = Math.floor(Date.now() / 1000);
+  let buf = tdBuffers.get(asset.id);
+  if (!buf || buf.length < 2) {
+    // Seed a short flat-ish baseline from last-known/base price so the chart renders.
+    const seed = (assetState.get(asset.id) || {}).lastPrice || price;
+    buf = [];
+    for (let i = 20; i > 0; i--) buf.push({ time: now - i * 300, value: seed, high: seed, low: seed });
+  }
+  buf = buf.slice(-299);
+  buf.push({ time: now, value: price, high: price, low: price });
+  tdBuffers.set(asset.id, buf);
+  return buf;
+}
+
+// Rolling candle buffer per WS asset: [{time, value, high, low}]
+const candleBuffers = new Map();
+
+async function seedKlines(asset) {
+  const sym = asset.symbol.toUpperCase(); // BTCUSDT
+  try {
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=5m&limit=300`);
+    if (!r.ok) throw new Error('klines ' + r.status);
+    const rows = await r.json(); // [ [openTime, open, high, low, close, ...], ... ]
+    const candles = rows.map(k => ({
+      time: Math.floor(k[0] / 1000),
+      value: parseFloat(k[4]),
+      high: parseFloat(k[2]),
+      low: parseFloat(k[3])
+    })).filter(c => !isNaN(c.value));
+    if (candles.length >= 2) candleBuffers.set(asset.id, candles);
+  } catch (e) {
+    console.warn(`[${asset.id}] kline seed failed, using simulation`, e);
+  }
+}
+
+function renderCryptoFromWS(asset, price, change24h) {
+  const buf = candleBuffers.get(asset.id);
+  let data;
+  if (buf && buf.length >= 2) {
+    data = buf.slice();
+    data[data.length - 1] = { ...data[data.length - 1], value: price };
+  } else {
+    data = generateSimulatedCandles(price, 300);
+  }
+  loadAssetFromData(asset, data, price, change24h);
+  if (window.detailOpen && window.detailAssetId === asset.id) {
+    updateDetailLive(asset, price, change24h);
+  }
+}
+
+function updateDetailLive(asset, price, change24h) {
+  // Header
+  const pEl = document.getElementById('detail-price');
+  if (pEl) pEl.textContent = fmtPrice(price);
+  const chEl = document.getElementById('detail-change');
+  if (chEl && change24h != null && !isNaN(change24h)) {
+    chEl.textContent = (change24h >= 0 ? '+' : '') + Number(change24h).toFixed(2) + '%';
+    chEl.style.color = change24h >= 0 ? '#00d084' : '#ef4444';
+  }
+  // Throttled full redraw (chart + gauge + ranges). Ranges/klines are cached so cheap.
+  const now = Date.now();
+  if (!window.__detailLastDraw || now - window.__detailLastDraw > 1500) {
+    window.__detailLastDraw = now;
+    renderDetailChart(asset, currentDetailInterval);
+  }
+}
+
+let ws = null;
+let wsBackoff = 1000;
+
+function openCryptoWS() {
+  const streams = WS_ASSETS.map(a => `${binanceSymbol(a)}@ticker`).join('/');
+  ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+
+  ws.onopen = () => { wsBackoff = 1000; };
+
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(ev.data);
+    const d = msg.data;
+    if (!d || !d.s) return;
+    const id = d.s.toLowerCase().replace('usdt', '');
+    const asset = WS_ASSETS.find(a => a.id === id);
+    if (!asset) return;
+    const price = parseFloat(d.c);
+    const change24h = parseFloat(d.P);
+    if (isNaN(price)) return;
+    renderCryptoFromWS(asset, price, change24h);
+  };
+
+  ws.onclose = () => {
+    const txt = document.getElementById('bannerText');
+    if (txt) txt.textContent = 'Reconnecting to live feed…';
+    setTimeout(openCryptoWS, wsBackoff);
+    wsBackoff = Math.min(wsBackoff * 2, 30000);
+  };
+
+  ws.onerror = () => { try { ws.close(); } catch (e) {} };
+}
+
+function queueBanner(text, color) {
+  bannerQueue.push({ text, color });
+  processBannerQueue();
+}
+
+function processBannerQueue() {
+  if (isBannerFlashing || bannerQueue.length === 0) return;
+  isBannerFlashing = true;
+  const txt = document.getElementById('bannerText');
+  const item = bannerQueue.shift();
+  txt.textContent = item.text;
+  setTimeout(() => {
+    isBannerFlashing = false;
+    if (bannerQueue.length > 0) {
+      setTimeout(processBannerQueue, 3000);
+    } else {
+      updateTopBannerSummary();
+    }
+  }, 4000);
+}
+
+function updateTopBannerSummary() {
+  const bearish = [];
+  ASSETS.forEach(a => {
+    const s = assetState.get(a.id);
+    if (s && s.d1Bias && s.h1Bias && s.d1Bias.includes('bearish') && s.h1Bias.includes('bearish')) {
+      bearish.push(a.name);
+    }
+  });
+  const txt = document.getElementById('bannerText');
+  if (bearish.length > 0) {
+    txt.textContent = `${bearish.length} BEARISH: ${bearish.join(', ')}`;
+  } else {
+    txt.textContent = 'Sigaotes KA-Ching — Market Monitor Active';
+  }
+}
+
+async function refreshAll() {
+  const cgIds = ASSETS.filter(a => a.cgId).map(a => a.cgId);
+  const [cgPrices, cgMarkets, cmcQuotes] = await Promise.all([
+    cgIds.length > 0 ? fetchCGPrices(cgIds) : null,
+    fetchCGMarkets(250, 1),
+    fetchCMCQuotes()
+  ]);
+  for (let i = 0; i < REST_ASSETS.length; i += 4) {
+    const batch = REST_ASSETS.slice(i, i + 4);
+    await Promise.all(batch.map(a => loadAsset(a, cgPrices, cgMarkets, null, cmcQuotes)));
+    if (i + 4 < REST_ASSETS.length) await new Promise(r => setTimeout(r, 800));
+  }
+  updateTopBannerSummary();
+}
+
+// === DETAIL: capability helpers, klines cache, chart + panels (T5) ===
+function hasMultiTF(asset) { return BINANCE_PAIRS.has(asset.id); }
+function hasLongHistory(asset) { return BINANCE_PAIRS.has(asset.id); }
+
+const detailKlineCache = new Map(); // `${id}:${interval}` -> {ts, candles}
+let currentDetailInterval = '1h';   // track active TF
+
+async function fetchDetailKlines(asset, interval) { // interval: '15m'|'1h'|'4h'|'1d'
+  const key = asset.id + ':' + interval;
+  const c = detailKlineCache.get(key);
+  if (c && Date.now() - c.ts < 60000) return c.candles;
+  const sym = asset.symbol.toUpperCase();
+  const limit = interval === '1d' ? 365 : 300;
+  try {
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${interval}&limit=${limit}`);
+    if (!r.ok) throw new Error('klines ' + r.status);
+    const rows = await r.json();
+    const candles = rows.map(k => ({ time: Math.floor(k[0]/1000), value: parseFloat(k[4]), high: parseFloat(k[2]), low: parseFloat(k[3]) })).filter(x => !isNaN(x.value));
+    detailKlineCache.set(key, { ts: Date.now(), candles });
+    return candles;
+  } catch (e) { return null; }
+}
+
+const TF_TABS = [ {label:'M15', interval:'15m'}, {label:'H1', interval:'1h'}, {label:'H4', interval:'4h'}, {label:'1D', interval:'1d'} ];
+
+function buildDetailTFs(asset) {
+  const wrap = document.getElementById('detail-tfs');
+  wrap.innerHTML = '';
+  if (hasMultiTF(asset)) {
+    TF_TABS.forEach(tf => {
+      const b = document.createElement('button');
+      b.className = 'tf-tab' + (tf.interval === currentDetailInterval ? ' active' : '');
+      b.textContent = tf.label;
+      b.addEventListener('click', () => {
+        currentDetailInterval = tf.interval;
+        wrap.querySelectorAll('.tf-tab').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        renderDetailChart(asset, tf.interval);
+      });
+      wrap.appendChild(b);
+    });
+  } else {
+    // Non-crypto: single enabled 5M tab + greyed others
+    const five = document.createElement('button');
+    five.className = 'tf-tab active'; five.textContent = '5M';
+    wrap.appendChild(five);
+    TF_TABS.forEach(tf => {
+      const b = document.createElement('button');
+      b.className = 'tf-tab disabled'; b.textContent = tf.label; b.disabled = true;
+      wrap.appendChild(b);
+    });
+  }
+}
+
+async function getDetailCandles(asset, interval) {
+  if (hasMultiTF(asset)) return await fetchDetailKlines(asset, interval);
+  return candleBuffers.get(asset.id) || tdBuffers.get(asset.id) || [];
+}
+
+async function renderDetailChart(asset, interval) {
+  const svg = document.getElementById('detail-chart');
+  const candles = await getDetailCandles(asset, interval) || [];
+  if (!candles || candles.length < 2) {
+    svg.innerHTML = '<text x="400" y="150" fill="#64748b" font-size="14" text-anchor="middle" font-family="Inter,system-ui">Chart data unavailable</text>';
+    renderDetailBreakout(asset, candles);
+    renderDetailRanges(asset);
+    return;
+  }
+  const d = buildSmoothSVGPath(candles, 800, 300, 12);
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="#00d084" stroke-width="2" stroke-linecap="round"/>`;
+  renderDetailBreakout(asset, candles);
+  renderDetailRanges(asset);
+}
+
+function renderDetailBreakout(asset, candles) {
+  const el = document.getElementById('detail-breakout');
+  const state = assetState.get(asset.id) || {};
+  if (!candles || candles.length < 2) {
+    el.innerHTML = '<div class="sec-title" style="font-size:10px">BREAKOUT PROBABILITY</div><div style="color:#64748b;margin-top:8px">N/A</div>';
+    return;
+  }
+  const price = state.lastPrice || candles[candles.length-1].value;
+  const ema = state.lastEma200 || price;
+  const rsi = getMomentum(candles);
+  const atr = computeATR(candles);
+  const prob = Math.round(computeBreakoutProbability(candles, price, ema, rsi));
+  const comp = Math.round(computeCompression(candles, atr));
+  const dir = breakoutDirection(price, ema, candles);
+  const dirColor = dir === 'bullish' ? '#00d084' : dir === 'bearish' ? '#ef4444' : '#94a3b8';
+  // Ring gauge: circle circumference based on r=46 => C≈289. dash = prob% of C.
+  const C = 289, dash = (prob/100)*C;
+  el.innerHTML = `
+    <div class="sec-title" style="font-size:10px;margin-bottom:6px">BREAKOUT PROBABILITY</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="46" fill="none" stroke="#1e293b" stroke-width="9"/>
+        <circle cx="55" cy="55" r="46" fill="none" stroke="${dirColor}" stroke-width="9" stroke-linecap="round"
+          stroke-dasharray="${dash.toFixed(1)} ${C}" transform="rotate(-90 55 55)"/>
+        <text x="55" y="52" fill="#fff" font-size="22" font-weight="800" text-anchor="middle" font-family="Inter,system-ui">${prob}%</text>
+        <text x="55" y="70" fill="${dirColor}" font-size="10" font-weight="700" text-anchor="middle" font-family="Inter,system-ui">${dir.toUpperCase()}</text>
+      </svg>
+      <div style="font-size:11px;line-height:1.8">
+        <div><span style="color:#94a3b8">Compression</span> <b style="color:#e5e7eb">${comp}%</b></div>
+        <div><span style="color:#94a3b8">ATR(14)</span> <b style="color:#e5e7eb">${fmtPrice(atr)}</b></div>
+      </div>
+    </div>`;
+}
+
+async function renderDetailRanges(asset) {
+  const el = document.getElementById('detail-ranges');
+  if (!hasLongHistory(asset)) {
+    el.innerHTML = '<div class="sec-title" style="font-size:10px">RANGES</div><div style="color:#64748b;margin-top:8px">Needs price history (N/A for this asset)</div>';
+    return;
+  }
+  const daily = await fetchDetailKlines(asset, '1d');
+  if (!daily || daily.length < 2) {
+    el.innerHTML = '<div class="sec-title" style="font-size:10px">RANGES</div><div style="color:#64748b;margin-top:8px">N/A</div>';
+    return;
+  }
+  const last = daily.slice(-365);
+  const hi = Math.max(...last.map(c => c.high));
+  const lo = Math.min(...last.map(c => c.low));
+  const price = (assetState.get(asset.id) || {}).lastPrice || daily[daily.length-1].value;
+  const pct = Math.round(rangePercentile(price, lo, hi));
+  el.innerHTML = `
+    <div class="sec-title" style="font-size:10px;margin-bottom:6px">RANGES</div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">12-Month High</span><b style="color:#00d084">${fmtPrice(hi)}</b></div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">12-Month Low</span><b style="color:#ef4444">${fmtPrice(lo)}</b></div>
+    <div style="margin-top:10px"><div style="font-size:10px;color:#94a3b8;margin-bottom:4px">52-Week Range</div>
+      <div style="position:relative;height:6px;background:linear-gradient(to right,#ef4444,#eab308,#00d084);border-radius:3px">
+        <div style="position:absolute;top:-3px;left:${pct}%;width:3px;height:12px;background:#fff;border-radius:2px;transform:translateX(-50%)"></div>
+      </div></div>`;
+}
+
+function openDetail(id) {
+  const modal = document.getElementById('detailModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  window.detailOpen = true;
+  window.detailAssetId = id;
+
+  const asset = ASSETS.find(a => a.id === id);
+  const state = assetState.get(id) || {};
+  const price = state.lastPrice;
+  const change = state.change24h;
+
+  // Header
+  document.getElementById('detail-symbol').textContent = asset ? asset.name : id;
+  document.getElementById('detail-price').textContent = (price != null) ? fmtPrice(price) : '—';
+  const chEl = document.getElementById('detail-change');
+  if (change != null && !isNaN(change)) {
+    chEl.textContent = (change >= 0 ? '+' : '') + Number(change).toFixed(2) + '%';
+    chEl.style.color = change >= 0 ? '#00d084' : '#ef4444';
+  } else {
+    chEl.textContent = '—';
+    chEl.style.color = '#94a3b8';
+  }
+
+  renderDetailLevels(id);
+  if (asset) {
+    currentDetailInterval = hasMultiTF(asset) ? '1h' : '5m';
+    buildDetailTFs(asset);
+    renderDetailChart(asset, currentDetailInterval);
+  }
+}
+function renderDetailLevels(id) {
+  const el = document.getElementById('detail-levels');
+  const state = assetState.get(id) || {};
+  const price = state.lastPrice, sup = state.support, res = state.resistance;
+  const d1 = state.d1Bias || '', h1 = state.h1Bias || '';
+  let bias = 'Neutral', biasColor = '#94a3b8';
+  if (d1.includes('bullish') && h1.includes('bullish')) { bias = 'Bullish'; biasColor = '#00d084'; }
+  else if (d1.includes('bearish') && h1.includes('bearish')) { bias = 'Bearish'; biasColor = '#ef4444'; }
+  const inside = (price != null && sup != null && res != null && price > sup && price < res);
+  const distRes = (price != null && res) ? Math.abs((price - res) / res * 100).toFixed(2) + '%' : '—';
+  const distSup = (price != null && sup) ? Math.abs((price - sup) / sup * 100).toFixed(2) + '%' : '—';
+  el.innerHTML = `
+    <div class="sec-title" style="font-size:10px;margin-bottom:8px">KEY LEVELS</div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">Resistance</span><span style="color:#ef4444;font-weight:700">${res != null ? fmtPrice(res) : '—'} <small style="color:#64748b">${distRes}</small></span></div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">Support</span><span style="color:#00d084;font-weight:700">${sup != null ? fmtPrice(sup) : '—'} <small style="color:#64748b">${distSup}</small></span></div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">Current</span><span style="color:#fff;font-weight:700">${price != null ? fmtPrice(price) : '—'} ${inside ? '<small style="color:#64748b">Inside range</small>' : ''}</span></div>
+    <div style="display:flex;justify-content:space-between;margin:8px 0 0"><span style="color:#94a3b8">Long-term bias</span><span style="color:${biasColor};font-weight:800">${bias}</span></div>
+  `;
+}
+function closeDetail() {
+  const modal = document.getElementById('detailModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+  window.detailOpen = false;
+  window.detailAssetId = null;
+  window.__detailLastDraw = null;
+  currentDetailInterval = '1h';
+}
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('detailBackdrop').addEventListener('click', closeDetail);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && window.detailOpen) closeDetail(); });
+
+buildGrid();
+buildNews(true);
+(async () => {
+  await Promise.all(WS_ASSETS.map(seedKlines));
+  openCryptoWS();
+})();
+refreshAll();
+setInterval(refreshAll, 5 * 60 * 1000);
+setInterval(updateNewsTimers, 1000);
+setInterval(() => buildNews(false), 60000);
+
+// Fallback: clear loading banner after 5 seconds regardless
+setTimeout(() => {
+  const bannerText = document.getElementById('bannerText');
+  if (bannerText && bannerText.textContent === 'Loading market data...') {
+    bannerText.textContent = 'Sigaotes KA-Ching — Market Monitor Active';
+  }
+}, 5000);
+</script>
+</body>
+</html>

@@ -71,6 +71,10 @@ if [[ "${MODE}" == "alerts-schedule" ]]; then
   run_scheduler_loop "${ALERT_SCHEDULE}" "alerts-check" "${ALERT_LOG_FILE}"
 fi
 
+if [[ "${MODE}" == "dashboard" ]]; then
+  exec python3 server.py
+fi
+
 if [[ "${MODE}" == "alerts-once" ]]; then
   exec python3 -m ff_calendar_toolkit.cli alerts-check "$@"
 fi

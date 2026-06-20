@@ -1,0 +1,6 @@
+[
+  {"time": "15:01", "timezone": "Asia/Karachi", "currency": "EUR", "impact": "gray", "event": "French Bank Holiday", "day": "Mon", "date": "25/05/2026"},
+  {"time": "12:30", "timezone": "Asia/Karachi", "currency": "USD", "impact": "red", "event": "Federal Funds Rate", "day": "Wed", "date": "27/05/2026"},
+  {"time": "09:00", "timezone": "Asia/Karachi", "currency": "GBP", "impact": "orange", "event": "GDP q/q", "day": "Thu", "date": "28/05/2026"},
+  {"time": "08:00", "timezone": "Asia/Karachi", "currency": "JPY", "impact": "red", "event": "BOJ Policy Rate", "day": "Mon", "date": "18/05/2026"}
+]
