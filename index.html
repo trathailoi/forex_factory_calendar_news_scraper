@@ -1080,6 +1080,140 @@ async function refreshAll() {
   updateTopBannerSummary();
 }
 
+// === DETAIL: capability helpers, klines cache, chart + panels (T5) ===
+function hasMultiTF(asset) { return BINANCE_PAIRS.has(asset.id); }
+function hasLongHistory(asset) { return BINANCE_PAIRS.has(asset.id); }
+
+const detailKlineCache = new Map(); // `${id}:${interval}` -> {ts, candles}
+let currentDetailInterval = '1h';   // track active TF
+
+async function fetchDetailKlines(asset, interval) { // interval: '15m'|'1h'|'4h'|'1d'
+  const key = asset.id + ':' + interval;
+  const c = detailKlineCache.get(key);
+  if (c && Date.now() - c.ts < 60000) return c.candles;
+  const sym = asset.symbol.toUpperCase();
+  const limit = interval === '1d' ? 365 : 300;
+  try {
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${interval}&limit=${limit}`);
+    if (!r.ok) throw new Error('klines ' + r.status);
+    const rows = await r.json();
+    const candles = rows.map(k => ({ time: Math.floor(k[0]/1000), value: parseFloat(k[4]), high: parseFloat(k[2]), low: parseFloat(k[3]) })).filter(x => !isNaN(x.value));
+    detailKlineCache.set(key, { ts: Date.now(), candles });
+    return candles;
+  } catch (e) { return null; }
+}
+
+const TF_TABS = [ {label:'M15', interval:'15m'}, {label:'H1', interval:'1h'}, {label:'H4', interval:'4h'}, {label:'1D', interval:'1d'} ];
+
+function buildDetailTFs(asset) {
+  const wrap = document.getElementById('detail-tfs');
+  wrap.innerHTML = '';
+  if (hasMultiTF(asset)) {
+    TF_TABS.forEach(tf => {
+      const b = document.createElement('button');
+      b.className = 'tf-tab' + (tf.interval === currentDetailInterval ? ' active' : '');
+      b.textContent = tf.label;
+      b.addEventListener('click', () => {
+        currentDetailInterval = tf.interval;
+        wrap.querySelectorAll('.tf-tab').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        renderDetailChart(asset, tf.interval);
+      });
+      wrap.appendChild(b);
+    });
+  } else {
+    // Non-crypto: single enabled 5M tab + greyed others
+    const five = document.createElement('button');
+    five.className = 'tf-tab active'; five.textContent = '5M';
+    wrap.appendChild(five);
+    TF_TABS.forEach(tf => {
+      const b = document.createElement('button');
+      b.className = 'tf-tab disabled'; b.textContent = tf.label; b.disabled = true;
+      wrap.appendChild(b);
+    });
+  }
+}
+
+async function getDetailCandles(asset, interval) {
+  if (hasMultiTF(asset)) return await fetchDetailKlines(asset, interval);
+  return candleBuffers.get(asset.id) || tdBuffers.get(asset.id) || [];
+}
+
+async function renderDetailChart(asset, interval) {
+  const svg = document.getElementById('detail-chart');
+  const candles = await getDetailCandles(asset, interval) || [];
+  if (!candles || candles.length < 2) {
+    svg.innerHTML = '<text x="400" y="150" fill="#64748b" font-size="14" text-anchor="middle" font-family="Inter,system-ui">Chart data unavailable</text>';
+    renderDetailBreakout(asset, candles);
+    renderDetailRanges(asset);
+    return;
+  }
+  const d = buildSmoothSVGPath(candles, 800, 300, 12);
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="#00d084" stroke-width="2" stroke-linecap="round"/>`;
+  renderDetailBreakout(asset, candles);
+  renderDetailRanges(asset);
+}
+
+function renderDetailBreakout(asset, candles) {
+  const el = document.getElementById('detail-breakout');
+  const state = assetState.get(asset.id) || {};
+  if (!candles || candles.length < 2) {
+    el.innerHTML = '<div class="sec-title" style="font-size:10px">BREAKOUT PROBABILITY</div><div style="color:#64748b;margin-top:8px">N/A</div>';
+    return;
+  }
+  const price = state.lastPrice || candles[candles.length-1].value;
+  const ema = state.lastEma200 || price;
+  const rsi = getMomentum(candles);
+  const atr = computeATR(candles);
+  const prob = Math.round(computeBreakoutProbability(candles, price, ema, rsi));
+  const comp = Math.round(computeCompression(candles, atr));
+  const dir = breakoutDirection(price, ema, candles);
+  const dirColor = dir === 'bullish' ? '#00d084' : dir === 'bearish' ? '#ef4444' : '#94a3b8';
+  // Ring gauge: circle circumference based on r=46 => C≈289. dash = prob% of C.
+  const C = 289, dash = (prob/100)*C;
+  el.innerHTML = `
+    <div class="sec-title" style="font-size:10px;margin-bottom:6px">BREAKOUT PROBABILITY</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="46" fill="none" stroke="#1e293b" stroke-width="9"/>
+        <circle cx="55" cy="55" r="46" fill="none" stroke="${dirColor}" stroke-width="9" stroke-linecap="round"
+          stroke-dasharray="${dash.toFixed(1)} ${C}" transform="rotate(-90 55 55)"/>
+        <text x="55" y="52" fill="#fff" font-size="22" font-weight="800" text-anchor="middle" font-family="Inter,system-ui">${prob}%</text>
+        <text x="55" y="70" fill="${dirColor}" font-size="10" font-weight="700" text-anchor="middle" font-family="Inter,system-ui">${dir.toUpperCase()}</text>
+      </svg>
+      <div style="font-size:11px;line-height:1.8">
+        <div><span style="color:#94a3b8">Compression</span> <b style="color:#e5e7eb">${comp}%</b></div>
+        <div><span style="color:#94a3b8">ATR(14)</span> <b style="color:#e5e7eb">${fmtPrice(atr)}</b></div>
+      </div>
+    </div>`;
+}
+
+async function renderDetailRanges(asset) {
+  const el = document.getElementById('detail-ranges');
+  if (!hasLongHistory(asset)) {
+    el.innerHTML = '<div class="sec-title" style="font-size:10px">RANGES</div><div style="color:#64748b;margin-top:8px">Needs price history (N/A for this asset)</div>';
+    return;
+  }
+  const daily = await fetchDetailKlines(asset, '1d');
+  if (!daily || daily.length < 2) {
+    el.innerHTML = '<div class="sec-title" style="font-size:10px">RANGES</div><div style="color:#64748b;margin-top:8px">N/A</div>';
+    return;
+  }
+  const last = daily.slice(-365);
+  const hi = Math.max(...last.map(c => c.high));
+  const lo = Math.min(...last.map(c => c.low));
+  const price = (assetState.get(asset.id) || {}).lastPrice || daily[daily.length-1].value;
+  const pct = Math.round(rangePercentile(price, lo, hi));
+  el.innerHTML = `
+    <div class="sec-title" style="font-size:10px;margin-bottom:6px">RANGES</div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">12-Month High</span><b style="color:#00d084">${fmtPrice(hi)}</b></div>
+    <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="color:#94a3b8">12-Month Low</span><b style="color:#ef4444">${fmtPrice(lo)}</b></div>
+    <div style="margin-top:10px"><div style="font-size:10px;color:#94a3b8;margin-bottom:4px">52-Week Range</div>
+      <div style="position:relative;height:6px;background:linear-gradient(to right,#ef4444,#eab308,#00d084);border-radius:3px">
+        <div style="position:absolute;top:-3px;left:${pct}%;width:3px;height:12px;background:#fff;border-radius:2px;transform:translateX(-50%)"></div>
+      </div></div>`;
+}
+
 function openDetail(id) {
   const modal = document.getElementById('detailModal');
   modal.style.display = 'flex';
@@ -1105,8 +1239,12 @@ function openDetail(id) {
   }
 
   renderDetailLevels(id);
-  document.getElementById('detail-breakout').innerHTML = '<div class="sec-title" style="font-size:10px">BREAKOUT</div><div style="color:#64748b;margin-top:8px">Loading…</div>';
-  document.getElementById('detail-ranges').innerHTML = '<div class="sec-title" style="font-size:10px">RANGES</div><div style="color:#64748b;margin-top:8px">Loading…</div>';
+  const asset2 = ASSETS.find(a => a.id === id);
+  if (asset2) {
+    currentDetailInterval = hasMultiTF(asset2) ? '1h' : '5m';
+    buildDetailTFs(asset2);
+    renderDetailChart(asset2, currentDetailInterval);
+  }
 }
 function renderDetailLevels(id) {
   const el = document.getElementById('detail-levels');
