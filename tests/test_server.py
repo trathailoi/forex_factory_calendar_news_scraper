@@ -76,3 +76,10 @@ def test_cmc_quotes_injects_header(monkeypatch):
     assert captured["headers"]["X-CMC_PRO_API_KEY"] == "SECRET_CMC"
     assert captured["params"]["symbol"] == "PI,GAS"
     assert captured["params"]["convert"] == "USD"
+
+
+def test_static_serves_detail_indicators():
+    client = TestClient(server.app)
+    resp = client.get("/static/detail_indicators.js")
+    assert resp.status_code == 200
+    assert "computeBreakoutProbability" in resp.text

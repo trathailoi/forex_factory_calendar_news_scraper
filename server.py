@@ -8,6 +8,7 @@ from pathlib import Path
 import requests
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from ff_calendar_toolkit.market_data import fetch_market
 from ff_calendar_toolkit.news_api import load_dashboard_news
@@ -24,6 +25,7 @@ TD_BASE = "https://api.twelvedata.com"
 CMC_QUOTES_URL = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 
 
 @app.get("/")
